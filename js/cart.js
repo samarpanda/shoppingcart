@@ -28,14 +28,16 @@
 			//Render Item
 			var templ = _.template(this.template);
 			this.$el.html(templ(this.model.toJSON()));
+			//return this.el.innerHTML;
 			return this;
 		}
 	});
 
-	App.View.CartCollectionView = Backbone.View.extend({
+	App.View.ItemCollectionView = Backbone.View.extend({
 		el:"#mycart",
 		initialize: function(){
 			//Temp data
+			this.$formValues = $("#add").children("input[type='text']");
 			var items = [
 			  { title: "Macbook Air", price: 799 },
 			  { title: "Macbook Pro", price: 999 },
@@ -47,13 +49,41 @@
 			this.render();
 		},
 		render: function(){
+			//var temp = "";
 			this.collection.each(function(item){
+				//temp += this.renderItem(item);
 				this.renderItem(item);
 			}, this);
+			//this.$el.append(temp);
+			//temp = "";
 		},
 		renderItem: function(item){
 			var itemView = new App.View.ItemView({model: item});
 			this.$el.append(itemView.render().el);
+			//return itemView.render();
+		},
+		addItem: function(){
+			var data = {};
+			this.$formValues.each(function(i, el){
+				data[el.id] = $(el).val();
+			});
+			var newItem = new App.Model.Item(data);
+			this.collection.add(newItem);
+			this.renderItem(newItem);
+		}
+	});
+
+	App.View.CartCollectionView = Backbone.View.extend({
+		el: 'body',
+		events: {
+			"submit #add": "addItem"
+		},
+		initialize: function(){
+			this.itemView = new App.View.ItemCollectionView();
+		},
+		addItem: function(e){
+			e.preventDefault();
+			this.itemView.addItem();
 		}
 	});
 	
